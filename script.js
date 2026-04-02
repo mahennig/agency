@@ -12,6 +12,11 @@
     document.body.classList.add('ready');
   });
 
+  // Safety net: reveal body after 2 s even if the load event never fires
+  setTimeout(function () {
+    document.body.classList.add('ready');
+  }, 2000);
+
   /* ------------------------------------------------------------------------
      2. Sticky Header on Scroll
      ------------------------------------------------------------------------ */
@@ -94,7 +99,7 @@
 
   // Add stagger delays to grid children
   var staggerParents = document.querySelectorAll(
-    '.problem__grid, .services__grid, .diff__grid, .cases__grid, .process__grid'
+    '.problem__grid, .services__grid, .diff__grid, .cases__grid, .process__grid, .audience__grid'
   );
 
   staggerParents.forEach(function (parent) {
@@ -155,7 +160,7 @@
   });
 
   /* ------------------------------------------------------------------------
-     7. Contact Form — Validation & Success State
+     7. Contact Form — Validation & Formspree Submission
      ------------------------------------------------------------------------ */
   var form        = document.getElementById('contactForm');
   var formSuccess = document.getElementById('formSuccess');
@@ -164,41 +169,76 @@
     form.addEventListener('submit', function (e) {
       e.preventDefault();
 
-      var name  = document.getElementById('f-name');
-      var email = document.getElementById('f-email');
-      var valid = true;
+      var name    = document.getElementById('f-name');
+      var email   = document.getElementById('f-email');
+      var submitBtn = form.querySelector('[type="submit"]');
+      var valid   = true;
 
-      // Simple validation
+      // Clear previous errors
       [name, email].forEach(function (field) {
         field.style.borderColor = '';
+        field.removeAttribute('aria-invalid');
+      });
+
+      // Required field check
+      [name, email].forEach(function (field) {
         if (!field.value.trim()) {
           field.style.borderColor = '#b05b5b';
+          field.setAttribute('aria-invalid', 'true');
           valid = false;
         }
       });
 
-      // Basic email format check
+      // Email format check
       if (email.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
         email.style.borderColor = '#b05b5b';
+        email.setAttribute('aria-invalid', 'true');
         valid = false;
       }
 
       if (!valid) return;
 
-      // Fade out form, show success
-      form.style.transition  = 'opacity 0.35s ease';
-      form.style.opacity     = '0';
+      // ---- Formspree submission ----
+      submitBtn.disabled    = true;
+      submitBtn.textContent = 'Sending…';
 
-      setTimeout(function () {
-        form.style.display = 'none';
-        formSuccess.removeAttribute('hidden');
-      }, 350);
+      fetch(form.action, {
+        method:  'POST',
+        body:    new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      })
+        .then(function (response) {
+          if (response.ok) {
+            // Show success state
+            form.style.transition = 'opacity 0.35s ease';
+            form.style.opacity    = '0';
+            setTimeout(function () {
+              form.style.display = 'none';
+              formSuccess.removeAttribute('hidden');
+            }, 350);
+          } else {
+            return response.json().then(function (data) {
+              var msg = (data.errors && data.errors.length)
+                ? data.errors.map(function (err) { return err.message; }).join(' · ')
+                : 'Something went wrong. Please try again.';
+              submitBtn.disabled    = false;
+              submitBtn.textContent = 'Submit Inquiry';
+              alert(msg);
+            });
+          }
+        })
+        .catch(function () {
+          submitBtn.disabled    = false;
+          submitBtn.textContent = 'Submit Inquiry';
+          alert('Network error — please check your connection and try again.');
+        });
     });
 
     // Remove error highlight on input
     form.querySelectorAll('input, select, textarea').forEach(function (field) {
       field.addEventListener('input', function () {
         field.style.borderColor = '';
+        field.removeAttribute('aria-invalid');
       });
     });
   }
