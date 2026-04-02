@@ -9,6 +9,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="favicon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
 </head>
 <body>
 
@@ -17,7 +19,10 @@
        ===================================================================== -->
   <header class="header" id="header">
     <div class="container header__inner">
-      <a href="#home" class="header__logo">Design Mindset</a>
+      <a href="#home" class="header__logo" aria-label="Design Mindset Agency">
+        <img src="assets/logo.png" alt="" class="logo-img" />
+        <span class="logo-text">Design Mindset</span>
+      </a>
 
       <nav class="nav" id="nav" aria-label="Main navigation">
         <ul class="nav__list">
@@ -58,9 +63,7 @@
         </div>
 
         <div class="hero__visual">
-          <div class="img-placeholder hero__img">
-            <span>Brand Visual</span>
-          </div>
+          <div class="img-placeholder hero__img"><span>Brand Visual</span></div>
           <div class="hero__visual-tag">Strategy · Presence · Growth</div>
         </div>
 
@@ -560,7 +563,10 @@
     <div class="container footer__inner">
 
       <div class="footer__brand">
-        <a href="#home" class="footer__logo">Design Mindset</a>
+        <a href="#home" class="footer__logo" aria-label="Design Mindset Agency">
+          <img src="assets/logo.png" alt="" class="logo-img logo-img--inverted" />
+          <span class="logo-text">Design Mindset</span>
+        </a>
         <p class="footer__tagline">Strategic growth for premium design brands</p>
       </div>
 
