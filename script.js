@@ -99,7 +99,7 @@
 
   // Add stagger delays to grid children
   var staggerParents = document.querySelectorAll(
-    '.problem__grid, .services__grid, .diff__grid, .cases__grid, .process__grid, .audience__grid'
+    '.services__grid, .proof__grid'
   );
 
   staggerParents.forEach(function (parent) {
@@ -135,32 +135,7 @@
   }
 
   /* ------------------------------------------------------------------------
-     6. FAQ Accordion
-     ------------------------------------------------------------------------ */
-  var faqItems = document.querySelectorAll('.faq__item');
-
-  faqItems.forEach(function (item) {
-    var btn = item.querySelector('.faq__question');
-
-    btn.addEventListener('click', function () {
-      var isOpen = item.classList.contains('open');
-
-      // Close all open items
-      faqItems.forEach(function (other) {
-        other.classList.remove('open');
-        other.querySelector('.faq__question').setAttribute('aria-expanded', 'false');
-      });
-
-      // If it was closed, open it now
-      if (!isOpen) {
-        item.classList.add('open');
-        btn.setAttribute('aria-expanded', 'true');
-      }
-    });
-  });
-
-  /* ------------------------------------------------------------------------
-     7. Contact Form — Validation & Formspree Submission
+     6. Contact Form — Validation & Formspree Submission
      ------------------------------------------------------------------------ */
   var form        = document.getElementById('contactForm');
   var formSuccess = document.getElementById('formSuccess');
@@ -222,14 +197,14 @@
                 ? data.errors.map(function (err) { return err.message; }).join(' · ')
                 : 'Something went wrong. Please try again.';
               submitBtn.disabled    = false;
-              submitBtn.textContent = 'Submit Inquiry';
+              submitBtn.textContent = 'Send Inquiry';
               alert(msg);
             });
           }
         })
         .catch(function () {
           submitBtn.disabled    = false;
-          submitBtn.textContent = 'Submit Inquiry';
+          submitBtn.textContent = 'Send Inquiry';
           alert('Network error — please check your connection and try again.');
         });
     });
