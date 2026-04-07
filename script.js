@@ -99,7 +99,7 @@
 
   // Add stagger delays to grid children
   var staggerParents = document.querySelectorAll(
-    '.services__grid, .proof__grid'
+    '.services__grid, .proof__grid--video, .process__timeline, .proof__reels-grid'
   );
 
   staggerParents.forEach(function (parent) {
@@ -133,6 +133,39 @@
       el.classList.add('visible');
     });
   }
+
+  /* ------------------------------------------------------------------------
+     5b. YouTube Lazy Embed — Replace thumbnail with iframe on click
+     ------------------------------------------------------------------------ */
+  document.querySelectorAll('.proof__video-wrap[data-youtube-id]').forEach(function (wrap) {
+    function loadVideo() {
+      var id = wrap.getAttribute('data-youtube-id');
+      if (!id) return;
+      var iframe = document.createElement('iframe');
+      iframe.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0';
+      iframe.setAttribute('allow', 'autoplay; encrypted-media');
+      iframe.setAttribute('allowfullscreen', '');
+      iframe.setAttribute('loading', 'lazy');
+      iframe.setAttribute('title', wrap.querySelector('.proof__thumb')
+        ? wrap.querySelector('.proof__thumb').alt
+        : 'YouTube video');
+      wrap.innerHTML = '';
+      wrap.appendChild(iframe);
+      wrap.style.cursor = 'default';
+    }
+
+    var playBtn = wrap.querySelector('.proof__play');
+    if (playBtn) {
+      playBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        loadVideo();
+      });
+    }
+    wrap.addEventListener('click', function (e) {
+      if (e.target.closest('.proof__play')) return;
+      loadVideo();
+    });
+  });
 
   /* ------------------------------------------------------------------------
      6. Contact Form — Validation & Formspree Submission
