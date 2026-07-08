@@ -95,7 +95,7 @@
   /* ------------------------------------------------------------------------
      5. Scroll Reveal — Intersection Observer
      ------------------------------------------------------------------------ */
-  var revealItems = document.querySelectorAll('.reveal');
+  var revealItems = document.querySelectorAll('.reveal, .reveal--left, .reveal--right, .reveal--scale');
 
   // Add stagger delays to grid children
   var staggerParents = document.querySelectorAll(
@@ -103,10 +103,9 @@
   );
 
   staggerParents.forEach(function (parent) {
-    var children = parent.querySelectorAll('.reveal');
+    var children = parent.querySelectorAll('.reveal, .reveal--left, .reveal--right, .reveal--scale');
     children.forEach(function (child, i) {
-      // Stagger within same row: cap at 4 items wide, so delay resets per row
-      var delay = (i % 4) * 0.1;
+      var delay = (i % 4) * 0.12;
       child.style.transitionDelay = delay + 's';
     });
   });
@@ -121,17 +120,76 @@
           }
         });
       },
-      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+      { threshold: 0.12, rootMargin: '0px 0px -48px 0px' }
     );
 
     revealItems.forEach(function (el) {
       observer.observe(el);
     });
   } else {
-    // Fallback: show everything immediately
     revealItems.forEach(function (el) {
       el.classList.add('visible');
     });
+  }
+
+  /* ------------------------------------------------------------------------
+     5b. Process Timeline — animated connecting line on scroll
+     ------------------------------------------------------------------------ */
+  var processTimeline = document.querySelector('.process__timeline');
+  if (processTimeline && 'IntersectionObserver' in window) {
+    var lineObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          processTimeline.classList.add('line-drawn');
+          lineObserver.unobserve(processTimeline);
+        }
+      });
+    }, { threshold: 0.1 });
+    lineObserver.observe(processTimeline);
+  }
+
+  /* ------------------------------------------------------------------------
+     5c. Number Counter Animation
+     ------------------------------------------------------------------------ */
+  function parseNum(str) {
+    return parseFloat(str.replace(/[^0-9.]/g, '')) || 0;
+  }
+
+  function animateCounter(el) {
+    var original = el.textContent.trim();
+    var target   = parseNum(original);
+    if (!target) return;
+    var duration = 1400;
+    var start    = null;
+    el.classList.add('counting');
+    function step(ts) {
+      if (!start) start = ts;
+      var progress = Math.min((ts - start) / duration, 1);
+      var eased    = 1 - Math.pow(2, -10 * progress);
+      var cur      = Math.round(target * eased);
+      // rebuild string preserving suffix/prefix
+      el.textContent = original.replace(/[\d,]+/, cur.toLocaleString());
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      } else {
+        el.textContent = original;
+        el.classList.remove('counting');
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  var statNums = document.querySelectorAll('.proof__stat .proof__num, .proof__total-stat .proof__num');
+  if ('IntersectionObserver' in window) {
+    var counterObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          animateCounter(entry.target);
+          counterObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    statNums.forEach(function (el) { counterObserver.observe(el); });
   }
 
   /* ------------------------------------------------------------------------
@@ -279,4 +337,3 @@
   window.addEventListener('scroll', updateActiveLink, { passive: true });
 
 })();
-

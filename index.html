@@ -19,8 +19,9 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Space+Grotesk:wght@300;400;500;600&display=swap" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Space+Grotesk:wght@300;400;500;600&display=swap" /></noscript>
   <link rel="stylesheet" href="styles.css" />
-  <link rel="icon" href="favicon.png" type="image/png" sizes="32x32" />
-  <link rel="apple-touch-icon" href="apple-touch-icon.png" sizes="180x180" />
+  <link rel="icon" href="assets/favicon.ico" sizes="any" />
+  <link rel="icon" href="assets/logo-favicon.png" type="image/png" sizes="192x192" />
+  <link rel="apple-touch-icon" href="assets/logo-favicon.png" />
   <noscript><style>body { opacity: 1 !important; }</style></noscript>
 
   <script type="application/ld+json">
@@ -75,7 +76,7 @@
   <header class="header" id="header">
     <div class="container header__inner">
       <a href="#home" class="header__logo" aria-label="Design Mindset Agency">
-        <span class="logo-text"><span>Design</span><span>Mindset</span><span>Agency</span></span>
+        <img src="assets/logo-header.png" alt="Design Mindset Agency" class="header__logo-img" width="1088" height="213" />
       </a>
 
       <nav class="nav" id="nav" aria-label="Main navigation">
@@ -106,32 +107,30 @@
          1. HERO
          =================================================================== -->
     <section class="hero" id="home">
-      <div class="container hero__inner">
+      <img
+        src="assets/hero.png"
+        alt="Cinematic interior — Design Mindset Agency"
+        class="hero__bg"
+        width="1536"
+        height="1024"
+        loading="eager"
+        fetchpriority="high"
+      />
+      <div class="hero__overlay" aria-hidden="true"></div>
 
+      <div class="container hero__inner">
         <div class="hero__content">
-          <span class="hero__label">For Interior Design Brands</span>
-          <h1 class="hero__headline">We turn interior design products into desired brands.</h1>
+          <span class="hero__label">Cinematic storytelling for premium interior brands</span>
           <hr aria-hidden="true" class="hero__rule" />
-          <p class="hero__sub">Cinematic brand episodes, Instagram campaigns, and design fair coverage — reaching architects and premium buyers across Europe through authentic storytelling.</p>
+          <h1 class="hero__headline">We turn designed spaces into cinematic brand stories.</h1>
+          <p class="hero__sub">Design Mindset Agency creates refined films, editorial content, and narrative-led visual systems for interior design brands, architecture studios, and lifestyle companies.</p>
           <div class="hero__actions">
-            <a href="#contact" class="btn btn--primary">Get in Touch</a>
-            <a href="#services" class="btn btn--ghost">What We Do</a>
+            <a href="#work" class="btn btn--primary">View Selected Work</a>
+            <a href="#contact" class="btn btn--ghost">Start a Conversation &rarr;</a>
           </div>
         </div>
-
-        <div class="hero__visual">
-          <img
-            src="assets/brand_visual.jpg"
-            alt="Design Mindset Agency — premium interior design brand strategy"
-            class="hero__img"
-            width="600"
-            height="750"
-            loading="eager"
-            fetchpriority="high"
-          />
-        </div>
-
       </div>
+
       <div class="hero__scroll-hint" aria-hidden="true">
         <span></span>
       </div>
@@ -471,7 +470,7 @@
     <section class="section about" id="about">
       <div class="container about__inner">
 
-        <div class="about__founder reveal">
+        <div class="about__founder reveal--left reveal--scale">
           <img
             src="assets/gia_about.jpg"
             alt="Georgiana Gogolan — Architect, Interior Designer, Founder of Design Mindset Agency"
@@ -482,7 +481,7 @@
           />
         </div>
 
-        <div class="about__text reveal">
+        <div class="about__text reveal--right">
           <span class="eyebrow">Founder</span>
           <h2 class="section__title">Georgiana Gogolan</h2>
           <p>Architect and interior designer. Co-founder of Space Casuals architecture office. Over 100 interior design projects delivered.</p>
