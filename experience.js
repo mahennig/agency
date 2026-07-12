@@ -41,7 +41,6 @@
       [720,  function () { intro.classList.add('is-charge'); }], // shockwave rings blast from the centre
       [1050, function () { intro.classList.add('is-flash'); }],  // white flash-bang peaks
       [1120, function () { intro.classList.add('is-split'); }],  // curtains blast apart; logo glitches in on black
-      [2300, function () { intro.classList.add('is-shine'); }],  // highlight runs across the settled logo
       [2750, handoff],                                           // logo flies to its hero position
       [3650, function () { intro.classList.add('is-done'); }],   // black stage fades, revealing the page
       [4300, function () { intro.classList.add('is-hidden'); }]  // remove from the layout
