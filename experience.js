@@ -92,7 +92,7 @@
 
   function scrollToY(top) {
     if (useVirtualScroll) {
-      setVirtualScroll(top);
+      animateVirtualTo(top);
       return;
     }
     if (useLocalScroll && scrollRoot) {
@@ -124,10 +124,20 @@
   }
   calibrateScrollRoot();
 
-  function setVirtualScroll(nextY) {
+  // Smoothed virtual scroll: wheel/keys nudge a *target* position and a RAF
+  // loop eases the rendered position toward it, so big batched wheel/trackpad
+  // deltas glide instead of snapping. Touch follows the finger 1:1 and then
+  // keeps gliding (momentum) after release.
+  var virtualTargetY = 0;
+  var virtualRAF = null;
+
+  function clampVirtual(y) {
+    return Math.max(0, Math.min(y, getScrollMax()));
+  }
+
+  function renderVirtual(y) {
     if (!scrollRoot) return;
-    var max = getScrollMax();
-    virtualY = Math.max(0, Math.min(nextY, max));
+    virtualY = clampVirtual(y);
     scrollRoot.style.setProperty('--virtual-y', (-virtualY) + 'px');
     updateHeaderSolid();
     drawStoryLine();
@@ -135,40 +145,89 @@
     updateVirtualReveals();
   }
 
+  function stopVirtualAnim() {
+    if (virtualRAF) { cancelAnimationFrame(virtualRAF); virtualRAF = null; }
+  }
+
+  function stepVirtual() {
+    var diff = virtualTargetY - virtualY;
+    if (Math.abs(diff) < 0.4) {
+      virtualRAF = null;
+      renderVirtual(virtualTargetY);
+      return;
+    }
+    renderVirtual(virtualY + diff * 0.18);
+    virtualRAF = requestAnimationFrame(stepVirtual);
+  }
+
+  // Immediate jump (used for init and programmatic resets).
+  function setVirtualScroll(nextY) {
+    if (!scrollRoot) return;
+    stopVirtualAnim();
+    virtualTargetY = clampVirtual(nextY);
+    renderVirtual(virtualTargetY);
+  }
+
+  // Eased move toward a target position.
+  function animateVirtualTo(nextY) {
+    if (!scrollRoot) return;
+    virtualTargetY = clampVirtual(nextY);
+    if (reduce) { stopVirtualAnim(); renderVirtual(virtualTargetY); return; }
+    if (!virtualRAF) virtualRAF = requestAnimationFrame(stepVirtual);
+  }
+
   function onVirtualWheel(e) {
     if (!useVirtualScroll) return;
     e.preventDefault();
-    setVirtualScroll(virtualY + e.deltaY);
+    animateVirtualTo(virtualTargetY + e.deltaY);
   }
 
-  var touchStartY = 0;
+  var touchLastY = 0, touchLastT = 0, touchVel = 0;
   function onVirtualTouchStart(e) {
     if (!useVirtualScroll || !e.touches.length) return;
-    touchStartY = e.touches[0].clientY;
+    stopVirtualAnim();
+    touchLastY = e.touches[0].clientY;
+    touchLastT = e.timeStamp || Date.now();
+    touchVel = 0;
+    virtualTargetY = virtualY;
   }
 
   function onVirtualTouchMove(e) {
     if (!useVirtualScroll || !e.touches.length) return;
     e.preventDefault();
     var currentY = e.touches[0].clientY;
-    setVirtualScroll(virtualY + touchStartY - currentY);
-    touchStartY = currentY;
+    var now = e.timeStamp || Date.now();
+    var dy = touchLastY - currentY;
+    var dt = now - touchLastT;
+    if (dt > 0) touchVel = touchVel * 0.7 + (dy / dt) * 0.3; // px/ms, smoothed
+    virtualTargetY = clampVirtual(virtualTargetY + dy);
+    renderVirtual(virtualTargetY); // follow the finger with no lag
+    touchLastY = currentY;
+    touchLastT = now;
+  }
+
+  function onVirtualTouchEnd() {
+    if (!useVirtualScroll || reduce) return;
+    // Fling: project the release velocity into a glide the easing loop settles.
+    if (Math.abs(touchVel) > 0.02) animateVirtualTo(virtualTargetY + touchVel * 240);
   }
 
   function onVirtualKey(e) {
     if (!useVirtualScroll) return;
     var step = window.innerHeight * 0.85;
-    if (e.key === 'ArrowDown') { e.preventDefault(); setVirtualScroll(virtualY + 80); }
-    if (e.key === 'ArrowUp') { e.preventDefault(); setVirtualScroll(virtualY - 80); }
-    if (e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); setVirtualScroll(virtualY + step); }
-    if (e.key === 'PageUp') { e.preventDefault(); setVirtualScroll(virtualY - step); }
-    if (e.key === 'Home') { e.preventDefault(); setVirtualScroll(0); }
-    if (e.key === 'End') { e.preventDefault(); setVirtualScroll(getScrollMax()); }
+    if (e.key === 'ArrowDown') { e.preventDefault(); animateVirtualTo(virtualTargetY + 80); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); animateVirtualTo(virtualTargetY - 80); }
+    if (e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); animateVirtualTo(virtualTargetY + step); }
+    if (e.key === 'PageUp') { e.preventDefault(); animateVirtualTo(virtualTargetY - step); }
+    if (e.key === 'Home') { e.preventDefault(); animateVirtualTo(0); }
+    if (e.key === 'End') { e.preventDefault(); animateVirtualTo(getScrollMax()); }
   }
 
   window.addEventListener('wheel', onVirtualWheel, { passive: false });
   window.addEventListener('touchstart', onVirtualTouchStart, { passive: true });
   window.addEventListener('touchmove', onVirtualTouchMove, { passive: false });
+  window.addEventListener('touchend', onVirtualTouchEnd, { passive: true });
+  window.addEventListener('touchcancel', onVirtualTouchEnd, { passive: true });
   window.addEventListener('keydown', onVirtualKey);
 
   /* ----------------------------------------------------------------------
@@ -363,6 +422,32 @@
   var storyComet  = document.getElementById('storyComet');
   var storyNodesG = document.getElementById('storyNodes');
   var storyLen = 0, cometLen = 0, yTable = [], nodeMarkers = [];
+  var storyDrawn = 0, storyTarget = 0, storyRAF = null;
+
+  function renderStoryLine(drawn) {
+    if (!storyLen) return;
+    storyPath.style.strokeDashoffset = storyLen - drawn;
+    if (storyComet) storyComet.style.strokeDashoffset = cometLen - drawn;
+    if (storylineEl) storylineEl.classList.toggle('is-live', drawn > cometLen && drawn < storyLen - 2);
+    nodeMarkers.forEach(function (m) {
+      var on = drawn >= m.l - 1;
+      m.circle.classList.toggle('is-on', on);
+      if (m.el) m.el.classList.toggle('is-linked', on);
+    });
+  }
+
+  function stepStoryLine() {
+    var diff = storyTarget - storyDrawn;
+    if (Math.abs(diff) < 0.5) {
+      storyDrawn = storyTarget;
+      renderStoryLine(storyDrawn);
+      storyRAF = null;
+      return;
+    }
+    storyDrawn += diff * 0.16;
+    renderStoryLine(storyDrawn);
+    storyRAF = requestAnimationFrame(stepStoryLine);
+  }
 
   function lengthAtY(targetY) {
     if (!yTable.length) return 0;
@@ -474,15 +559,16 @@
     var atBottom = getScrollTop() >= maxScroll - 2;
     var prog = maxScroll > 0 ? getScrollTop() / maxScroll : 0;
     if (prog < 0) prog = 0; else if (prog > 1) prog = 1;
-    var drawn = atBottom ? storyLen : storyLen * prog;
-    storyPath.style.strokeDashoffset = storyLen - drawn;
-    if (storyComet) storyComet.style.strokeDashoffset = cometLen - drawn;
-    if (storylineEl) storylineEl.classList.toggle('is-live', drawn > cometLen && drawn < storyLen - 2);
-    nodeMarkers.forEach(function (m) {
-      var on = drawn >= m.l - 1;
-      m.circle.classList.toggle('is-on', on);
-      if (m.el) m.el.classList.toggle('is-linked', on);
-    });
+    // The *target* length for the current scroll position. The rendered length
+    // (storyDrawn) eases toward it in a RAF loop so a batched wheel/trackpad
+    // jump animates the line instead of snapping it forward all at once.
+    storyTarget = atBottom ? storyLen : storyLen * prog;
+    if (reduce) {
+      storyDrawn = storyTarget;
+      renderStoryLine(storyDrawn);
+    } else if (!storyRAF) {
+      storyRAF = requestAnimationFrame(stepStoryLine);
+    }
     updateActiveChapter();
     syncGuideVisibility();
   };
