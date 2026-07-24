@@ -204,6 +204,8 @@
 
     function build() {
       var mainTop = main.getBoundingClientRect().top + window.scrollY;
+      layer.style.height = '0px';        // collapse the overlay (layer + svg) first so we
+      svg.style.height = '0px';          // measure the true content height, not the stale one
       var mainH = main.scrollHeight;
       layerWidth = layer.clientWidth;
 
@@ -338,6 +340,7 @@
 
     window.addEventListener('resize', scheduleBuild);
     window.addEventListener('load', scheduleBuild);
+    window.addEventListener('dm:langchange', scheduleBuild);   // text reflows on language switch
     window.addEventListener('pointermove', function (event) {
       mouse.x = event.clientX;
       mouse.y = event.clientY;
@@ -405,17 +408,12 @@
       btn.className = 'sound-toggle';
       btn.setAttribute('aria-pressed', 'false');
       btn.setAttribute('aria-label', 'Unmute sound');
-      btn.innerHTML = '<span class="sound-toggle__wave" aria-hidden="true"><svg viewBox="0 0 32 12" preserveAspectRatio="none"><path class="sound-toggle__line" d="M-16 6 Q-12 2 -8 6 T0 6 T8 6 T16 6 T24 6 T32 6 T40 6 T48 6"/></svg></span><span class="sound-toggle__label" data-i18n="sound.off">Sound</span>';
-      var label = btn.querySelector('.sound-toggle__label');
+      btn.innerHTML = '<span class="sound-toggle__wave" aria-hidden="true"><svg viewBox="0 0 32 12" preserveAspectRatio="none"><path class="sound-toggle__flat" d="M0 6 H32"/><path class="sound-toggle__line" d="M-16 6 Q-12 2 -8 6 T0 6 T8 6 T16 6 T24 6 T32 6 T40 6 T48 6"/></svg></span>';
       btn.addEventListener('click', function () {
         var on = api.toggle();
         btn.classList.toggle('is-on', on);
         btn.setAttribute('aria-pressed', on ? 'true' : 'false');
         btn.setAttribute('aria-label', on ? 'Mute sound' : 'Unmute sound');
-        if (label) {
-          label.setAttribute('data-i18n', on ? 'sound.on' : 'sound.off');
-          if (window.__dmI18n) window.__dmI18n.applyOne(label);
-        }
       });
       if (cta) header.insertBefore(btn, cta);
       else header.appendChild(btn);
@@ -635,6 +633,8 @@
       document.documentElement.setAttribute('lang', current);
       var nodes = document.querySelectorAll('[data-i18n], [data-i18n-html]');
       Array.prototype.forEach.call(nodes, applyOne);
+      // text length changes between languages — let the rope/layout recompute
+      window.dispatchEvent(new CustomEvent('dm:langchange'));
     }
 
     window.__dmI18n = { applyLang: applyLang, applyOne: applyOne, get lang() { return current; } };

@@ -844,23 +844,23 @@ body > * { position: relative; }
 }
 .expertise-arrow { font-size: 1.2rem; color: rgba(20, 17, 15, 0.6); }
 
-/* -- Final CTA — cinematic dark ending ------------------------------------ */
+/* -- Final CTA — light editorial ending, matching the palette ------------- */
 .story--final {
-  background: linear-gradient(180deg, #1b1822 0%, #101010 100%);
-  color: var(--white);
+  background: linear-gradient(180deg, var(--pink) 0%, var(--lavender) 100%);
+  color: var(--ink);
   text-align: center;
   justify-content: center;
 }
 .story--final .final-cta { max-width: 1100px; margin: 0 auto; }
-.story--final .eyebrow { color: rgba(255, 255, 255, 0.7); }
-.story--final .story__headline { color: var(--white); }
-.story--final .dot-period { color: var(--lime); }
+.story--final .eyebrow { color: rgba(20, 17, 15, 0.72); }
+.story--final .story__headline { color: var(--ink); }
+.story--final .dot-period { color: #35600a; }
 .story--final .cta {
   display: inline-flex; align-items: center; gap: 0.6rem;
   margin-top: clamp(2rem, 5vw, 3rem);
 }
-.story--final .contact__email { color: rgba(255, 255, 255, 0.6); }
-.story--final .contact__email:hover { color: var(--lime); }
+.story--final .contact__email { color: rgba(20, 17, 15, 0.62); }
+.story--final .contact__email:hover { color: #35600a; }
 .story--final.is-thread-active::after {
   left: 50%;
   right: auto;
@@ -901,21 +901,17 @@ body > * { position: relative; }
 .sound-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.35rem 0.1rem;
+  justify-content: center;
+  padding: 0.5rem 0.85rem;
   margin-left: 0.3rem;
-  border: 0;
-  background: none;
-  color: rgba(255, 255, 255, 0.8);
-  font-family: var(--sans);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  transition: color 0.3s var(--ease), transform 0.3s var(--ease);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.85);
+  transition: color 0.3s var(--ease), border-color 0.3s var(--ease), background 0.3s var(--ease), transform 0.3s var(--ease);
 }
-.sound-toggle:hover { color: #fff; }
-.sound-toggle.is-on { color: var(--lime); }
+.sound-toggle:hover { color: #fff; border-color: rgba(255, 255, 255, 0.75); background: rgba(255, 255, 255, 0.12); }
+.sound-toggle.is-on { color: var(--lime); border-color: var(--lime); }
 .sound-toggle__wave {
   display: block;
   width: 26px;
@@ -935,24 +931,33 @@ body > * { position: relative; }
   stroke-width: 1.7;
   stroke-linecap: round;
   stroke-linejoin: round;
+  opacity: 0;                           /* muted → wave hidden, flat line shown */
+  transition: opacity 0.35s var(--ease);
+}
+.sound-toggle__flat {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  opacity: 1;                           /* muted → straight line visible */
+  transition: opacity 0.35s var(--ease);
+}
+.sound-toggle.is-on .sound-toggle__flat { opacity: 0; }
+.sound-toggle.is-on .sound-toggle__line {
+  opacity: 1;
   transform-box: view-box;
   transform-origin: center;
-  transform: scaleY(0);                 /* muted → flat line */
-  transition: transform 0.45s var(--ease);
-}
-.sound-toggle.is-on .sound-toggle__line {
   animation: soundWave 1.1s linear infinite;   /* sound on → travelling wave */
 }
 @keyframes soundWave {
-  from { transform: scaleY(1) translateX(0); }
-  to   { transform: scaleY(1) translateX(-16px); }
+  from { transform: translateX(0); }
+  to   { transform: translateX(-16px); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .sound-toggle.is-on .sound-toggle__line { animation: none; transform: scaleY(1); }
+  .sound-toggle.is-on .sound-toggle__line { animation: none; }
 }
 @media (max-width: 880px) {
-  .sound-toggle { padding: 0.45rem 0.7rem; font-size: 0.6rem; letter-spacing: 0.1em; }
-  .sound-toggle__label { display: none; }
+  .sound-toggle { padding: 0.45rem 0.7rem; }
 }
 
 /* ==========================================================================
