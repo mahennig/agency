@@ -1,0 +1,320 @@
+/* ==========================================================================
+   Design Mindset — Figma "ALUI" build
+   Light editorial · full-bleed sections · chrome orb · wide all-caps type
+   ========================================================================== */
+
+:root {
+  --lime:        #AFFB39;
+  --ink:         #14110F;
+  --white:       #FFFFFF;
+
+  /* Section palette sampled from the Figma file */
+  --silver:      #B5B3B3;   /* hero — matches the orb render backdrop */
+  --mauve:       #D0B8B8;
+  --lavender:    #BDB5C7;
+  --rose:        #C1A9A9;
+  --purple:      #AEA6B8;
+  --pink:        #E9CFCF;
+
+  --display: 'Asterone', 'Syne', 'Space Grotesk', system-ui, sans-serif;
+  --sans:    'Inter', 'Space Grotesk', system-ui, sans-serif;
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+body {
+  font-family: var(--sans);
+  color: var(--white);
+  background: var(--silver);
+  overflow-x: hidden;
+}
+body.is-loading { overflow: hidden; }
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+::selection { background: var(--lime); color: var(--ink); }
+*:focus-visible { outline: 2px solid var(--lime); outline-offset: 4px; }
+
+.skip-link {
+  position: fixed; top: -120%; left: 1rem; z-index: 2000;
+  padding: 0.6rem 1.1rem; background: var(--lime); color: var(--ink);
+  font-weight: 700; font-size: 0.8rem; border-radius: 0 0 6px 6px;
+}
+.skip-link:focus { top: 0; }
+
+/* --------------------------------------------------------------------------
+   Top navigation — PROJECTS · SERVICES  |  logo  |  TEAM · WORK WITH US
+   -------------------------------------------------------------------------- */
+.nav {
+  position: fixed; inset: 0 0 auto; z-index: 800;
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+  gap: 1rem;
+  padding: 2rem clamp(1.5rem, 5vw, 4rem);
+  color: var(--lime);
+}
+.nav__group { display: flex; gap: clamp(1rem, 3vw, 2.6rem); }
+.nav__group--right { justify-content: flex-end; }
+.nav a, .nav__brand {
+  font-family: var(--sans);
+  font-size: 0.74rem; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--lime);
+  position: relative;
+}
+.nav a::after {
+  content: ''; position: absolute; left: 0; bottom: -4px;
+  width: 100%; height: 1px; background: currentColor;
+  transform: scaleX(0); transform-origin: left; transition: transform 0.4s var(--ease);
+}
+.nav a:hover::after { transform: scaleX(1); }
+.nav__brand {
+  justify-self: center; letter-spacing: 0.24em; font-weight: 800;
+  font-family: var(--display);
+}
+@media (max-width: 760px) {
+  .nav { grid-template-columns: 1fr auto; padding: 1.2rem 1.25rem; }
+  .nav__group--left { display: none; }
+  .nav__group--right { gap: 1rem; }
+  .nav__brand { justify-self: start; }
+}
+
+/* --------------------------------------------------------------------------
+   Full-bleed sections — one giant centred headline each
+   -------------------------------------------------------------------------- */
+.panel {
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 8rem clamp(1.5rem, 6vw, 6rem);
+  overflow: hidden;
+}
+.panel--mauve    { background: var(--mauve); }
+.panel--lavender { background: var(--lavender); }
+.panel--rose     { background: var(--rose); }
+.panel--purple   { background: var(--purple); }
+.panel--pink     { background: linear-gradient(180deg, var(--rose), var(--pink)); }
+
+.panel__inner { position: relative; z-index: 2; max-width: 1040px; }
+
+.eyebrow {
+  display: block;
+  font-family: var(--sans);
+  font-size: clamp(0.62rem, 1vw, 0.78rem);
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(20, 17, 15, 0.75);
+  margin-bottom: clamp(1.6rem, 4vw, 3rem);
+}
+
+.headline {
+  font-family: var(--display);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.005em;
+  line-height: 1.0;
+  color: var(--white);
+  font-size: clamp(1.9rem, 5vw, 4.6rem);
+}
+.headline--md { font-size: clamp(1.4rem, 3.4vw, 2.6rem); font-weight: 700; }
+
+.footer-label {
+  display: block;
+  font-family: var(--sans);
+  font-size: clamp(0.66rem, 1.1vw, 0.9rem);
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: clamp(1.6rem, 4vw, 3rem);
+}
+
+/* Numbered process list */
+.process { list-style: none; margin-top: clamp(1.6rem, 4vw, 2.6rem); display: grid; gap: 0.7rem; }
+.process li {
+  font-family: var(--display);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: clamp(1rem, 2.6vw, 1.9rem);
+  color: var(--white);
+}
+.process li span { color: var(--ink); opacity: 0.55; margin-right: 0.4em; }
+
+/* --------------------------------------------------------------------------
+   HERO — silver stage, chrome orb, DESIGNMINDSET wordmark
+   -------------------------------------------------------------------------- */
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: grid; place-items: center;
+  background: linear-gradient(180deg, #B4B2B3 0%, #BcBcBc 55%, #C6C6C6 100%);
+  overflow: hidden;
+}
+.hero__orb {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: min(96vh, 98vw);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  will-change: transform, opacity, filter;
+}
+
+/* ==========================================================================
+   The orb — the exact Figma render (liquid-chrome sphere + matcha core).
+   Feathered into the backdrop; carries only subtle, premium life.
+   ========================================================================== */
+.hero__orb img, .hero__orb video,
+.intro__orb img, .intro__orb video {
+  width: 100%; height: 100%; object-fit: cover;
+  -webkit-mask-image: radial-gradient(circle at 50% 48%, #000 72%, transparent 93%);
+          mask-image: radial-gradient(circle at 50% 48%, #000 72%, transparent 93%);
+}
+
+.hero__wordmark {
+  position: relative;
+  z-index: 2;
+  font-family: var(--display);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.005em;
+  line-height: 1;
+  color: var(--white);
+  font-size: clamp(1.5rem, 4.8vw, 5rem);
+  white-space: nowrap;
+  mix-blend-mode: normal;
+  text-shadow: 0 6px 40px rgba(0, 0, 0, 0.35);
+}
+.hero__wordmark .dot { color: var(--lime); }
+
+.hero__tagline {
+  position: absolute;
+  bottom: clamp(4rem, 10vh, 8rem);
+  left: 50%; transform: translateX(-50%);
+  z-index: 2;
+  font-family: var(--sans);
+  font-size: clamp(0.72rem, 1.4vw, 1rem);
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--white);
+  white-space: nowrap;
+}
+.hero__scroll {
+  position: absolute;
+  bottom: 1.6rem; left: 50%; transform: translateX(-50%);
+  z-index: 2;
+  font-size: 0.62rem; letter-spacing: 0.24em; text-transform: uppercase;
+  color: rgba(20, 17, 15, 0.5);
+}
+.hero__scroll::before {
+  content: ''; display: block; width: 1px; height: 34px; margin: 0 auto 0.7rem;
+  background: linear-gradient(180deg, rgba(20,17,15,0), rgba(20,17,15,0.5));
+  animation: scrollPulse 2.2s var(--ease) infinite;
+}
+@keyframes scrollPulse { 0%,100% { opacity: 0.3; transform: scaleY(0.7); } 50% { opacity: 1; transform: scaleY(1); } }
+
+/* --------------------------------------------------------------------------
+   Contact / CTA
+   -------------------------------------------------------------------------- */
+.contact { background: var(--ink); color: var(--white); }
+.contact .headline { color: var(--white); }
+.contact .headline em { font-style: normal; color: var(--lime); }
+.cta {
+  display: inline-block; margin-top: 2.4rem;
+  font-family: var(--sans); font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  font-size: 0.85rem;
+  padding: 1.1rem 2.6rem; border-radius: 4px;
+  background: var(--lime); color: var(--ink);
+  transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease);
+}
+.cta:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(175, 251, 57, 0.35); }
+.contact__email { display: block; margin-top: 1.6rem; color: rgba(255,255,255,0.6); letter-spacing: 0.06em; font-size: 0.9rem; }
+
+.site-footer {
+  background: var(--ink); color: rgba(255,255,255,0.5);
+  padding: 2.4rem clamp(1.5rem, 6vw, 6rem);
+  display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; align-items: center;
+  font-size: 0.78rem; letter-spacing: 0.04em;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.site-footer a { color: rgba(255,255,255,0.7); }
+.site-footer a:hover { color: var(--lime); }
+.site-footer__links { display: flex; gap: 1.4rem; }
+
+/* --------------------------------------------------------------------------
+   Scroll reveal
+   -------------------------------------------------------------------------- */
+.reveal-ready .reveal {
+  opacity: 0;
+  clip-path: inset(0 0 100% 0 round 6px);
+  transform: translateY(26px) scale(0.985);
+  transition: opacity 0.9s var(--ease), clip-path 1s var(--ease), transform 1s var(--ease);
+}
+.reveal-ready .reveal.is-in,
+.reveal.is-in {
+  opacity: 1;
+  clip-path: inset(0 0 0 0 round 0);
+  transform: none;
+}
+.reveal--d1 { transition-delay: 0.12s; }
+.reveal--d2 { transition-delay: 0.24s; }
+
+/* --------------------------------------------------------------------------
+   INTRO — calm, Figma-faithful reveal: the exact orb eases in, wordmark rises
+   -------------------------------------------------------------------------- */
+.intro {
+  position: fixed; inset: 0; z-index: 1500;
+  display: grid; place-items: center;
+  background: linear-gradient(180deg, #B4B2B3 0%, #BcBcBc 55%, #C6C6C6 100%);
+  overflow: hidden;
+}
+.intro.is-hidden { display: none; }
+.intro__orb {
+  position: absolute; left: 50%; top: 50%;
+  width: min(96vh, 98vw); aspect-ratio: 1;
+  transform: translate(-50%, -50%) scale(0.92);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: orbIn 1.5s var(--ease) 0.1s forwards;
+}
+@keyframes orbIn {
+  0%   { transform: translate(-50%, -50%) scale(0.92); opacity: 0; }
+  100% { transform: translate(-50%, -50%) scale(1);    opacity: 1; }
+}
+.intro__word {
+  position: relative; z-index: 3;
+  font-family: var(--display); font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.005em; line-height: 1;
+  color: var(--white); font-size: clamp(1.5rem, 4.8vw, 5rem);
+  white-space: nowrap; display: flex;
+  text-shadow: 0 6px 40px rgba(0,0,0,0.35);
+}
+.intro__word span {
+  display: inline-block;
+  opacity: 0; transform: translateY(38px);
+  animation: letterUp 0.7s var(--ease) forwards;
+}
+.intro__word .dot { color: var(--lime); }
+@keyframes letterUp { to { opacity: 1; transform: none; } }
+.intro.is-out { animation: introOut 0.9s var(--ease) forwards; }
+@keyframes introOut { to { opacity: 0; visibility: hidden; } }
+
+/* continuous, barely-there life on the hero orb once settled */
+.hero__orb { animation: orbFloat 12s ease-in-out infinite; }
+@keyframes orbFloat {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50%      { transform: translate(-50%, -51.5%) scale(1.012); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro { display: none; }
+  .hero__orb { animation: none; }
+  .intro__orb, .intro__word span, .hero__scroll::before { animation: none; opacity: 1; }
+  .reveal { opacity: 1; transform: none; }
+}
